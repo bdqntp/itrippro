@@ -8,6 +8,6 @@ import javax.annotation.Resource;
 @Service("userService")
 public class UserServiceImpl implements UserService {
     @Resource
-    private ItripUserMapper itripUserMapper;
+    private ItripUserMapper itripUserMapper;dxdxdxdxdxdx
 }
 
