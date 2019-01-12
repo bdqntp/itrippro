@@ -15,8 +15,8 @@
 		<property name="port" value="465" />
 		<property name="protocol" value="smtp" />
 		<property name="defaultEncoding" value="utf-8" />
-		<property name="username" value="59774452@qq.com" />
-		<property name="password" value="授权码" />
+		<property name="username" value="1361034652@qq.com" />
+		<property name="password" value="zokssqdrrznhjehi" />
 		<property name="javaMailProperties">
 			<props>
 				<!-- 设置SMTP服务器需要用户验证 -->
@@ -29,7 +29,7 @@
 	</bean>
 	
 	<bean id="activationMailMessage" class="org.springframework.mail.SimpleMailMessage" scope="prototype">
-		<property name="from" value="59774452@qq.com"></property>
+		<property name="from" value="1361034652@qq.com"></property>
 		<property name="subject" value="【i旅行】请激活您的账户"></property>
 		<property name="text" value=""></property>		
 	</bean>

@@ -33,7 +33,7 @@ import cn.itrip.common.ErrorCode;
 public class UserController {
 	@Resource
 	private UserService userService;
-	
+
 	
 	@RequestMapping("/register")
 	public String showRegisterForm() {
@@ -47,9 +47,29 @@ public class UserController {
 	 */	
 	@RequestMapping(value="/doregister",method=RequestMethod.POST,produces = "application/json")
 	public @ResponseBody
-	Dto doRegister(@RequestBody ItripUserVO userVO) {		
-		
-		
+	Dto doRegister(@RequestBody ItripUserVO userVO) {
+		String regex = "^\\s*\\w+(?:\\.{0,1}[\\w]+)*@[a-zA-Z0-9]+(?:[-.][a-zA-Z0-9]+)*\\.[a-zA-Z]+[a-zA-Z]+\\s*$";
+		//邮箱验证
+		if(!this.validEmail(userVO.getUserCode()))
+			return DtoUtil.returnFail("请使用正确的邮箱",ErrorCode.AUTH_ILLEGAL_USERCODE);
+
+		//调用service
+
+		ItripUser user = new ItripUser();
+		user.setUserCode(userVO.getUserCode());
+		user.setUserName(userVO.getUserName());
+		try {
+			if(null != userService.findUserByUserCode(user.getUserCode()))
+				return  DtoUtil.returnFail("邮箱已存在",ErrorCode.AUTH_USER_ALREADY_EXISTS);
+			else{
+				user.setUserPassword(MD5.getMd5(userVO.getUserPassword(),32));
+				userService.itriptxCreateUser(user);
+				return DtoUtil.returnSuccess();
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			return DtoUtil.returnFail(e.getMessage(),ErrorCode.AUTH_UNKNOWN);
+		}
 	}
 	
 	/**
@@ -60,7 +80,27 @@ public class UserController {
 	@RequestMapping(value="/registerbyphone",method=RequestMethod.POST,produces = "application/json")
 	public @ResponseBody Dto registerByPhone(			
 			@RequestBody ItripUserVO userVO){
-					
+		//手机号验证
+		if(!this.validPhone(userVO.getUserCode()))
+			return DtoUtil.returnFail("请使用正确的手机号码",ErrorCode.AUTH_ILLEGAL_USERCODE);
+
+		//调用service
+
+		ItripUser user = new ItripUser();
+		user.setUserCode(userVO.getUserCode());
+		user.setUserName(userVO.getUserName());
+		try {
+			if(null != userService.findUserByUserCode(user.getUserCode()))
+				return  DtoUtil.returnFail("用户已存在",ErrorCode.AUTH_USER_ALREADY_EXISTS);
+			else{
+				user.setUserPassword(MD5.getMd5(userVO.getUserPassword(),32));
+				userService.itriptxCreateUserByPhone(user);
+				return DtoUtil.returnSuccess();
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			return DtoUtil.returnFail(e.getMessage(),ErrorCode.AUTH_UNKNOWN);
+		}
 	}
 
 	/**
@@ -70,25 +110,43 @@ public class UserController {
 	 */	
 	@RequestMapping(value="/ckusr",method=RequestMethod.GET,produces= "application/json")
 	public @ResponseBody
-	Dto checkUser(@RequestParam String name) {		
-				
+	Dto checkUser(@RequestParam String name) {
+		return null;
 	}
 	
 	
 	@RequestMapping(value="/activate",method=RequestMethod.PUT,produces= "application/json")
 	public @ResponseBody Dto activate(			
 			@RequestParam String user,			
-			@RequestParam String code){			
-			
+			@RequestParam String code){
+		try {
+			if(userService.activate(user,code))
+				return DtoUtil.returnSuccess("激活成功");
+			else{
+				return DtoUtil.returnSuccess("激活失败");
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			return DtoUtil.returnFail("激活失败",ErrorCode.AUTH_UNKNOWN);
+		}
 	} 
 	
 	
 	@RequestMapping(value="/validatephone",method=RequestMethod.PUT,produces= "application/json")
 	public @ResponseBody Dto validatePhone(			
 			@RequestParam String user,			
-			@RequestParam String code){			
-			
-	} 
+			@RequestParam String code){
+				try {
+					if(userService.validatePhone(user,code))
+						return DtoUtil.returnSuccess("验证成功");
+					else{
+						return DtoUtil.returnSuccess("验证失败");
+					}
+				}catch (Exception e){
+					e.printStackTrace();
+					return DtoUtil.returnFail("验证失败",ErrorCode.AUTH_UNKNOWN);
+				}
+	}
 	
 	
 	/**			 *
